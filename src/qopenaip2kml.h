@@ -23,6 +23,7 @@
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSlider>
 #include <QFormLayout>
 #include <QMessageBox>
 #include <QProgressBar>
@@ -30,6 +31,11 @@
 #include <QThread>
 #include <QIcon>
 #include <QLibraryInfo>
+#include <QMenuBar>
+#include <QToolBar>
+#include <QCheckBox>
+#include <QColorDialog>
+#include <QStatusBar>
 #include <qopenaip2kmltypes.h>
 #include <openaipfileparser.h>
 #include <kmlwriter.h>
@@ -45,16 +51,22 @@ public:
     ~QOpenAip2Kml();
 
     AeronauticalDataHandler *adh;
+    AppDataHandler *appdh;
 
 private:
     void createWindow();
+    void createZoneGroup();
+    void createSelectAera();
     void parseOpenAipFile();
+    void collectParameters();
 
     QMenu *fileMenu;
     QMenu *helpMenu;
     QAction *aboutQtAction;
     QAction *aboutAction;
     QVBoxLayout *mainLayout;
+    QHBoxLayout *hLayout;
+    QVBoxLayout *vLeftLayout;
 
     TErrorLevel errorLevel;
 
@@ -67,9 +79,24 @@ private:
     //fichier de sortie
     QLineEdit *outputFileLineEdit;
 
+    QLineEdit *aeraLatMinLineEdit;
+    QLineEdit *aeraLonMinLineEdit;
+    QLineEdit *aeraLatMaxLineEdit;
+    QLineEdit *aeraLonMaxLineEdit;
+
     QPushButton *runPushButton;
 
     QProgressBar *progressBar;
+
+    QVector<QCheckBox*> classCheckBox;
+    QVector<QPushButton*> classPushButton;
+
+    QSlider *lineThicknessSlider;
+    QLineEdit *lineTicknessLineEdit;
+
+    QSlider *transparencySlider;
+    QLineEdit *transparencyLineEdit;
+
 
 private slots:
     void selectAirspaceFileName();
@@ -83,6 +110,9 @@ private slots:
     void setProgressBarValueWriting(int value);
     void displayErrors(int p_errorLevel, QString p_windowTitle, QString p_errorDescription);
     void about();
+    void setColor();
+    void updateLineTicknessLineEdit(int p_value);
+    void updateTransparencyLineEdit(int p_value);
 
  signals:
     void requestQMessageBox(int errorLevel, QString windowTitle, QString errorDescription);

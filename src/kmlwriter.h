@@ -31,7 +31,7 @@ class KmlWriter : public QObject
 {
     Q_OBJECT
 public:
-    explicit KmlWriter(AeronauticalDataHandler *const p_adh, const QString p_filename, QObject *parent = 0);
+    explicit KmlWriter(AeronauticalDataHandler *const p_adh, AppDataHandler *const p_appdh, const QString p_filename, QObject *parent = 0);
 
 private:
     void createStyles(QDomDocument &p_doc, QDomElement &p_document);
@@ -42,6 +42,7 @@ private:
 
     QString filename;
     AeronauticalDataHandler *adh;
+    AppDataHandler *appdh;
     static const QString K_STYLEMAP_SUFFIX;
     QVector<QString> colorMapZone;
     int airspacesProcessedCount;

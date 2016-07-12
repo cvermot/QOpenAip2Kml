@@ -19,12 +19,15 @@
 
 QOpenAip2Kml::QOpenAip2Kml(QWidget *parent) : QMainWindow(parent)
 {
+    adh = new AeronauticalDataHandler();
+    appdh =  new AppDataHandler();
+    errorLevel = TErrorLevel_NOERROR;
+
     createWindow();
 
     setWindowIcon(QIcon("./img/icon.png"));
 
-    adh = new AeronauticalDataHandler();
-    errorLevel = TErrorLevel_NOERROR;
+
 }
 
 void QOpenAip2Kml::createWindow()
@@ -42,15 +45,21 @@ void QOpenAip2Kml::createWindow()
 
 
     mainLayout = new QVBoxLayout(this);
+    hLayout = new QHBoxLayout(this);
+    vLeftLayout = new QVBoxLayout(this);
+    hLayout->addLayout(vLeftLayout);
     QWidget *window = new QWidget(this);
+    mainLayout->addLayout(hLayout);
     window->setLayout(mainLayout);
     setCentralWidget(window);
+
 
     //---------------------files management---------------------//
     QGroupBox *fileGroupBox = new QGroupBox(tr("Files"), this);
     QFormLayout *filesFormLayout = new QFormLayout(this);
     fileGroupBox->setLayout(filesFormLayout);
-    mainLayout->addWidget(fileGroupBox);
+    vLeftLayout->addWidget(fileGroupBox);
+
 
     //---airspaces file---//
     QHBoxLayout *airspaceFileLayout = new QHBoxLayout(this);
@@ -102,6 +111,42 @@ void QOpenAip2Kml::createWindow()
         outputFileLineEdit->setText("../out.kml");
     }
 
+    createZoneGroup();
+
+    //---------------------Airspaces colors---------------------//
+    QGroupBox *colorsGroupBox = new QGroupBox(tr("Airspaces colors"), this);
+    QFormLayout *colorsFormLayout = new QFormLayout(this);
+    colorsGroupBox->setLayout(colorsFormLayout);
+    hLayout->addWidget(colorsGroupBox);
+
+    //classCheckBox = new QVector<QCheckBox*>(airspacesName.length()) ;
+    //classPushButton = new QVector<QPushButton*>(airspacesName.length()) ;
+    //classCheckBox.reserve(airspacesName.length());
+    //classPushButton.reserve(airspacesName.length());
+    for(int k = 0 ; k < airspacesName.length() ; k++)
+    {
+        QHBoxLayout *classLayout = new QHBoxLayout(this);
+        QPushButton *pushButton = new QPushButton("Select color", this);
+        QCheckBox *checkbox = new QCheckBox(this);
+        classPushButton.append(pushButton);
+        classCheckBox.append(checkbox);
+        classCheckBox[k]->setChecked(true);
+        //classCheckBox[k]->setToolTip(airspacesName.at(k).append(" rendered in outputed file"));
+        classLayout->addWidget(classPushButton[k]);
+        classLayout->addWidget(classCheckBox[k]);
+        colorsFormLayout->addRow(airspacesName.at(k), classLayout);
+        connect(classPushButton[k], SIGNAL(clicked()), this, SLOT(setColor()));
+
+        //set color to button
+        QPalette palette = pushButton->palette();
+        QString colorName = appdh->getZonesColors().at(k);
+        palette.setColor(QPalette::ButtonText, QColor(colorName));
+        pushButton->setPalette(palette);
+        pushButton->setText(colorName);
+    }
+
+    createSelectAera();
+
     //---------------------Run button---------------------//
     runPushButton = new QPushButton(tr("Run"), this);
     connect(runPushButton, SIGNAL(clicked(bool)), this, SLOT(runConversion()));
@@ -110,6 +155,87 @@ void QOpenAip2Kml::createWindow()
     progressBar = new QProgressBar();
     statusBar()->addPermanentWidget(progressBar);
 
+}
+
+void QOpenAip2Kml::createZoneGroup()
+{
+    QGroupBox *zoneGroupBox = new QGroupBox(tr("Zones parameters"), this);
+    QFormLayout *zoneFormLayout = new QFormLayout(this);
+    zoneGroupBox->setLayout(zoneFormLayout);
+    vLeftLayout->addWidget(zoneGroupBox);
+
+    lineThicknessSlider = new QSlider(Qt::Horizontal, this);
+    lineThicknessSlider->setRange(0,10);
+    lineThicknessSlider->setValue(1);
+    lineThicknessSlider->setTickInterval(1);
+    lineTicknessLineEdit = new QLineEdit(this);
+    lineTicknessLineEdit->setFixedWidth(30);
+    lineTicknessLineEdit->setText("1");
+    QHBoxLayout *ticknessLayout = new QHBoxLayout(this);
+    ticknessLayout->addWidget(lineThicknessSlider);
+    ticknessLayout->addWidget(lineTicknessLineEdit);
+    zoneFormLayout->addRow("Line tickness", ticknessLayout);
+
+    connect(lineThicknessSlider, SIGNAL(valueChanged(int)), this, SLOT(updateLineTicknessLineEdit(int)));
+
+    transparencySlider = new QSlider(Qt::Horizontal, this);
+    transparencySlider->setRange(0,100);
+    transparencySlider->setValue(15);
+    transparencySlider->setTickInterval(10);
+    transparencyLineEdit = new QLineEdit(this);
+    transparencyLineEdit->setFixedWidth(30);
+    transparencyLineEdit->setText("10");
+    QHBoxLayout *transparencyLayout = new QHBoxLayout(this);
+    transparencyLayout->addWidget(transparencySlider);
+    transparencyLayout->addWidget(transparencyLineEdit);
+    zoneFormLayout->addRow("Transparency", transparencyLayout);
+
+    connect(transparencySlider, SIGNAL(valueChanged(int)), this, SLOT(updateTransparencyLineEdit(int)));
+
+}
+
+void QOpenAip2Kml::createSelectAera()
+{
+    QGroupBox *aeraGroupBox = new QGroupBox(tr("Rendered aera"), this);
+    QFormLayout *aeraFormLayout = new QFormLayout(this);
+    aeraGroupBox->setLayout(aeraFormLayout);
+    vLeftLayout->addWidget(aeraGroupBox);
+
+    aeraLatMinLineEdit = new QLineEdit("-90", this);
+    aeraLatMaxLineEdit = new QLineEdit("90", this);
+    aeraLonMinLineEdit = new QLineEdit("-180", this);
+    aeraLonMaxLineEdit = new QLineEdit("180", this);
+
+    aeraFormLayout->addRow(tr("Minimum latitude"), aeraLatMinLineEdit);
+    aeraFormLayout->addRow(tr("Maximum latitude"), aeraLatMaxLineEdit);
+    aeraFormLayout->addRow(tr("Minimum longitude"), aeraLonMinLineEdit);
+    aeraFormLayout->addRow(tr("Minimum longitude"), aeraLonMaxLineEdit);
+
+}
+
+void QOpenAip2Kml::updateLineTicknessLineEdit(int p_value)
+{
+    lineTicknessLineEdit->setText(QString::number(p_value));
+}
+
+void QOpenAip2Kml::updateTransparencyLineEdit(int p_value)
+{
+    transparencyLineEdit->setText(QString::number(p_value));
+}
+
+void QOpenAip2Kml::setColor()
+{
+    QPushButton *button = (QPushButton *)sender();
+    QColor color;
+    color = QColorDialog::getColor(Qt::green, this);
+    if (color.isValid())
+    {
+        qDebug() << color.value();
+        QPalette palette = button->palette();
+        palette.setColor(QPalette::ButtonText, color);
+        button->setPalette(palette);
+        button->setText(color.name());
+    }
 }
 
 void QOpenAip2Kml::selectAirspaceFileName()
@@ -138,6 +264,8 @@ void QOpenAip2Kml::selectOutputFileName()
 
 void QOpenAip2Kml::runConversion()
 {
+    collectParameters();
+
     statusBar()->showMessage(tr("Parsing openAIP files"));
 
     errorLevel = TErrorLevel_NOERROR;
@@ -165,6 +293,24 @@ void QOpenAip2Kml::setMaximum(int value)
 {
     progressBar->setMaximum(value * 2);
     progressBar->setMinimum(0);
+}
+
+void QOpenAip2Kml::collectParameters()
+{
+    QString colorValue = "";
+    for(int k = 0 ; k < TAirspaceCategory__INTERNAL_NUMBER_OF_VALUE ; k++)
+    {
+        colorValue = classPushButton.at(k)->text();
+        appdh->setZoneColor(static_cast<TAirspaceCategory>(k), colorValue);
+        appdh->setZoneActivated(static_cast<TAirspaceCategory>(k), classCheckBox.at(k)->isChecked());
+    }
+    appdh->setTransparency(transparencySlider->value());
+    appdh->setLineThickness(lineThicknessSlider->value());
+    appdh->setArea(aeraLatMinLineEdit->text().toDouble(),
+                   aeraLatMaxLineEdit->text().toDouble(),
+                   aeraLonMinLineEdit->text().toDouble(),
+                   aeraLonMaxLineEdit->text().toDouble());
+
 }
 
 void QOpenAip2Kml::displayErrors(int p_errorLevel, QString p_windowTitle, QString p_errorDescription)
@@ -198,7 +344,7 @@ void QOpenAip2Kml::fileParsingIsFinnished()
          #endif
          statusBar()->showMessage(tr("Writing kml file"));
 
-         KmlWriter *kw = new KmlWriter(adh, QString(outputFileLineEdit->text()));
+         KmlWriter *kw = new KmlWriter(adh, appdh, QString(outputFileLineEdit->text()));
          QThread* thread = new QThread(this);
          kw->moveToThread(thread);
 
@@ -236,17 +382,18 @@ void QOpenAip2Kml::fileWritingIsFinnished()
     #endif
     statusBar()->showMessage(tr("Success"), 20000);
     runPushButton->setDisabled(false);
+    adh->flushDatas();
 
 }
 
 void QOpenAip2Kml::about()
 {
     QMessageBox::about(this, tr("About QOpenAip2Kml"),
-            tr("<b>QOpenAip2Kml v 1.0</b> < br />< br /> "
+            tr("<b>QOpenAip2Kml v 1.1</b> < br />< br /> "
                "A software aimed to convert AIP files to KML file. <br />"
                "You can download updates on the official website of the project"
                " <a href=\"http://afterflight.org\">http://afterflight.org</a>.<br />< br/>"
-               "You can download the AIP files on <a href=\"http://openaip.net\">http://openaip.net</a>.<br />< br/>"
+               "You can download AIP files on <a href=\"http://openaip.net\">http://openaip.net</a>.<br />< br/>"
                "Icon by <a href=\"https://www.iconfinder.com/icons/897231/airplane_destination_fly_map_resolutions_travel_vacation_icon\">Laura Reen</a>.< br />< br />< br />"
                " This program is free software: you can redistribute it and/or modify"
                " it under the terms of the GNU General Public License as published by"

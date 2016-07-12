@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     aeronauticaldatahandler.cpp \
     openaipfileparser.cpp \
     kmlwriter.cpp \
-    appdatahandler.cpp
+    appdatahandler.cpp \
+    qopenaip2kmltypes.cpp
 
 HEADERS  += qopenaip2kml.h \
     qopenaip2kmltypes.h \

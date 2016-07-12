@@ -18,15 +18,14 @@
 
 const QString KmlWriter::K_STYLEMAP_SUFFIX = QString("Map");
 
-static QString transparency = "10";
-static int lineWidth = 1;
-
 KmlWriter::KmlWriter(AeronauticalDataHandler *const p_adh,
+                     AppDataHandler *const p_appdh,
                      const QString p_filename,
                      QObject *parent) : QObject(parent)
 {
     airspacesProcessedCount = 0;
     adh = p_adh;
+    appdh = p_appdh;
     filename = p_filename;
 
 }
@@ -50,7 +49,7 @@ void KmlWriter::writeKml()
 
     QDomElement snippet = doc.createElement("Snippet");
     document.appendChild(snippet);
-    QDomCDATASection snippetText = doc.createCDATASection("created using <a href=\"http://afterflight.eu/index.php/gpstracker-site\"><b>AfterFlight GPSTrack</b></a>");
+    QDomCDATASection snippetText = doc.createCDATASection("created using <a href=\"http://afterflight.org/qopenaip2kml/\"><b>AfterFlight QOpenAip2Kml</b></a>");
     snippet.appendChild(snippetText);
 
     QDomElement name = doc.createElement("name");
@@ -64,26 +63,18 @@ void KmlWriter::writeKml()
     //-------------------fin creation de la structure de base
 
     //-------------------Zones
-
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_A), QString("Classe A"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_B), QString("Classe B"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_C), QString("Classe C"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_D), QString("Classe D"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_E), QString("Classe E"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_F), QString("Classe F"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_G), QString("Classe G"));
-
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_DANGER), QString("Danger"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_GLIDING), QString("Glider"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_RESTRICTED), QString("Restricted"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_PROHIBITED), QString("Prohibited"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_CTR), QString("CTR"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_TMA), QString("TMA"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_TMZ), QString("TMZ"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_WAVE), QString("Wave"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_FIR), QString("FIR"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_UIR), QString("UIR"));
-    createZoneByFolder(doc, document, adh->getAirspace(TAirspaceCategory_RMZ), QString("RMZ"));
+    for(int k = 0 ; k < airspacesName.length() ; k++)
+    {
+        if(appdh->getZonesActivations().at(k))
+        {
+           createZoneByFolder(doc, document, adh->getAirspace(static_cast<TAirspaceCategory>(k)), airspacesName.at(k));
+        }
+        else
+        {
+            //update counter in order to reach 100%
+            airspacesProcessedCount = airspacesProcessedCount + adh->getAirspace(static_cast<TAirspaceCategory>(k)).size();
+        }
+    }
 
     //-------------------fin Zones
 
@@ -172,35 +163,15 @@ void KmlWriter::createStyles(QDomDocument &p_doc,
     //initializ the vector with a default value
     colorMapZone.fill("#blueMap", TAirspaceCategory__INTERNAL_NUMBER_OF_VALUE);
 
-    //zones en bleu
-    createStyleWithPair(p_doc, p_document, "ff0000", "blue");
-    colorMapZone.replace(TAirspaceCategory_OTHER, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_B, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_C, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_D, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_E, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_F, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_G, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_DANGER, "#redMap");
-    colorMapZone.replace(TAirspaceCategory_GLIDING, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_CTR, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_TMA, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_TMZ, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_WAVE, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_UIR, "#blueMap");
-    colorMapZone.replace(TAirspaceCategory_RMZ, "#blueMap");
 
-    //zones en vert
-    createStyleWithPair(p_doc, p_document, "00aa00", "green");
-    colorMapZone.replace(TAirspaceCategory_FIR, "#greenMap");
-
-    //zones en rouge
-    createStyleWithPair(p_doc, p_document, "0000ff", "red");
-    colorMapZone.replace(TAirspaceCategory_A, "#redMap");
-    colorMapZone.replace(TAirspaceCategory_RESTRICTED, "#redMap");
-    colorMapZone.replace(TAirspaceCategory_PROHIBITED, "#redMap");
-
-
+    QVector<QString> colors = appdh->getZonesColors();
+    for(int k = 0 ; k < airspacesName.length() ; k++)
+    {
+       QString sanitizedAirspaceName = airspacesName[k];
+       sanitizedAirspaceName.remove(QRegExp("[^a-zA-Z\\d\\s]"));
+       createStyleWithPair(p_doc, p_document, colors[k].remove(0,1), sanitizedAirspaceName);
+       colorMapZone.replace(k, QString("#").append(sanitizedAirspaceName).append("Map"));
+    }
 
 }
 
@@ -234,7 +205,7 @@ void KmlWriter::createStyle(QDomDocument &p_doc,
 
     QDomElement width = p_doc.createElement(QString("width"));
     lineStyle.appendChild(width);
-    QDomText widthValue = p_doc.createTextNode(QString::number(lineWidth));
+    QDomText widthValue = p_doc.createTextNode(QString::number(appdh->getLineThickness()));
     width.appendChild(widthValue);
 
     QDomElement polyStyle = p_doc.createElement("PolyStyle");
@@ -243,7 +214,7 @@ void KmlWriter::createStyle(QDomDocument &p_doc,
     QDomElement colorpoly = p_doc.createElement("color");
     polyStyle.appendChild(colorpoly);
     QString colorPolyString;
-    colorPolyString.append(transparency).append(p_color);
+    colorPolyString.append(appdh->getTransparency()).append(p_color);
     QDomText colorpolyValue = p_doc.createTextNode(colorPolyString);
     colorpoly.appendChild(colorpolyValue);
 }

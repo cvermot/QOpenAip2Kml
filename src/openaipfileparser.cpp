@@ -123,7 +123,7 @@ void OpenAipFileParser::parseOpenAipFile()
         emit finished();
 }
 
-//methode pour pacrourir chaque ASP un à un
+//methode pour parcourir chaque ASP un à un
 void OpenAipFileParser::parseAirspaces(AeronauticalDataHandler &p_adh,
                                        QDomElement p_airspaces)
 {

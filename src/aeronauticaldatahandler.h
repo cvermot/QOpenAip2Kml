@@ -34,6 +34,7 @@ public:
     QVector<TAirspace> getAirspace(TAirspaceCategory p_category);
     static QString getGeometryAsString(QVector<TLatLon> p_latLon, int p_altitude);
     static QString getGeometryAsStringWithoutAltitude(QVector<TLatLon> p_latLon);
+    void flushDatas();
 
 signals:
 

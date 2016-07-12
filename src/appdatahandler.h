@@ -18,6 +18,10 @@
 #define APPDATAHANDLER_H
 
 #include <QObject>
+#include <QVector>
+#include <QString>
+#include <QDebug>
+#include <qopenaip2kmltypes.h>
 
 enum TErrorLevel
 {
@@ -31,6 +35,26 @@ class AppDataHandler : public QObject
     Q_OBJECT
 public:
     explicit AppDataHandler(QObject *parent = 0);
+
+    QVector<QString> getZonesColors();
+    QVector<bool> getZonesActivations();
+    QString getTransparency();
+    int getLineThickness();
+    void setZoneColor (const TAirspaceCategory category, const QString colorCode);
+    void setZoneActivated (const TAirspaceCategory category, const bool zoneIsActivated);
+    void setTransparency(int p_transparency);
+    void setLineThickness(int p_lineThickness);
+    void setArea(double p_latMin, double p_latMax, double p_lonMin, double p_lonMax);
+
+private:
+    QVector<QString> zonesColors;
+    QVector<bool> zonesActivations;
+    int transparency;
+    int lineThickness;
+    double latMin;
+    double latMax;
+    double lonMin;
+    double lonMax;
 
 signals:
 

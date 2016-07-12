@@ -60,6 +60,27 @@ enum TAirspaceCategory
     TAirspaceCategory__INTERNAL_NUMBER_OF_VALUE
 };
 
+static const QVector<QString> airspacesName = QVector<QString>()
+                                                                 << "Other"
+                                                                 << "A Class"
+                                                                 << "B Class"
+                                                                 << "C Class"
+                                                                 << "D Class"
+                                                                 << "E Class"
+                                                                 << "F Class"
+                                                                 << "G Class"
+                                                                 << "Danger"
+                                                                 << "Gliding"
+                                                                 << "Restricted"
+                                                                 << "Prohibited"
+                                                                 << "CTR"
+                                                                 << "TMA"
+                                                                 << "TMZ"
+                                                                 << "WAVE"
+                                                                 << "FIR"
+                                                                 << "UIR"
+                                                                 << "RMZ";
+
 struct TAirspaceAltitude
 {
     TAirspaceAltitudeReference reference;
@@ -100,7 +121,6 @@ static const TAirspace AIRSPACE_INIT =
     QString(""),
     QVector<TLatLon>()
 };
-
 
 class QOpenAip2KmlTypes : public QObject
 {

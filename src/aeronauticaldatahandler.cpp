@@ -31,6 +31,12 @@ void AeronauticalDataHandler::addAirspace(TAirspace p_airspace)
     airspaces.append(p_airspace);
 }
 
+void AeronauticalDataHandler::flushDatas()
+{
+    //TODO : doing some stuff in order to effectively clear the memory from Qt 5.7
+    airspaces.clear();
+}
+
 const QVector<TAirspace> AeronauticalDataHandler::getAirspaces()
 {
     return airspaces;
