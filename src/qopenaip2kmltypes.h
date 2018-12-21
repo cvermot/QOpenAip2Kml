@@ -100,6 +100,12 @@ struct TLatLon
     double longitude;
 };
 
+struct TGeoMinMax
+{
+    TLatLon min;
+    TLatLon max;
+};
+
 struct TAirspace
 {
     QString name;

@@ -201,15 +201,15 @@ void QOpenAip2Kml::createSelectAera()
     aeraGroupBox->setLayout(aeraFormLayout);
     vLeftLayout->addWidget(aeraGroupBox);
 
-    aeraLatMinLineEdit = new QLineEdit("-90", this);
-    aeraLatMaxLineEdit = new QLineEdit("90", this);
-    aeraLonMinLineEdit = new QLineEdit("-180", this);
-    aeraLonMaxLineEdit = new QLineEdit("180", this);
+    areaLatMinLineEdit = new QLineEdit("-90", this);
+    areaLatMaxLineEdit = new QLineEdit("90", this);
+    areaLonMinLineEdit = new QLineEdit("-180", this);
+    areaLonMaxLineEdit = new QLineEdit("180", this);
 
-    aeraFormLayout->addRow(tr("Minimum latitude"), aeraLatMinLineEdit);
-    aeraFormLayout->addRow(tr("Maximum latitude"), aeraLatMaxLineEdit);
-    aeraFormLayout->addRow(tr("Minimum longitude"), aeraLonMinLineEdit);
-    aeraFormLayout->addRow(tr("Minimum longitude"), aeraLonMaxLineEdit);
+    aeraFormLayout->addRow(tr("Minimum latitude"), areaLatMinLineEdit);
+    aeraFormLayout->addRow(tr("Maximum latitude"), areaLatMaxLineEdit);
+    aeraFormLayout->addRow(tr("Minimum longitude"), areaLonMinLineEdit);
+    aeraFormLayout->addRow(tr("Minimum longitude"), areaLonMaxLineEdit);
 
 }
 
@@ -230,7 +230,6 @@ void QOpenAip2Kml::setColor()
     color = QColorDialog::getColor(Qt::green, this);
     if (color.isValid())
     {
-        qDebug() << color.value();
         QPalette palette = button->palette();
         palette.setColor(QPalette::ButtonText, color);
         button->setPalette(palette);
@@ -300,16 +299,16 @@ void QOpenAip2Kml::collectParameters()
     QString colorValue = "";
     for(int k = 0 ; k < TAirspaceCategory__INTERNAL_NUMBER_OF_VALUE ; k++)
     {
-        colorValue = classPushButton.at(k)->text();
+        colorValue = (classPushButton.at(k)->text()).remove(QRegExp("[^a-zA-Z\\d\\s]"));
         appdh->setZoneColor(static_cast<TAirspaceCategory>(k), colorValue);
         appdh->setZoneActivated(static_cast<TAirspaceCategory>(k), classCheckBox.at(k)->isChecked());
     }
     appdh->setTransparency(transparencySlider->value());
     appdh->setLineThickness(lineThicknessSlider->value());
-    appdh->setArea(aeraLatMinLineEdit->text().toDouble(),
-                   aeraLatMaxLineEdit->text().toDouble(),
-                   aeraLonMinLineEdit->text().toDouble(),
-                   aeraLonMaxLineEdit->text().toDouble());
+    appdh->setArea(areaLatMinLineEdit->text().toDouble(),
+                   areaLatMaxLineEdit->text().toDouble(),
+                   areaLonMinLineEdit->text().toDouble(),
+                   areaLonMaxLineEdit->text().toDouble());
 
 }
 

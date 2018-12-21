@@ -36,6 +36,11 @@ AppDataHandler::AppDataHandler(QObject *parent) : QObject(parent)
     transparency = 15;
     lineThickness = 1;
 
+    latLonMinMax.min.latitude = -90;
+    latLonMinMax.min.longitude = -180 ;
+    latLonMinMax.max.latitude = 90 ;
+    latLonMinMax.max.longitude = 180;
+
     latMin = -90;
     latMax = 90;
     lonMin = -180;
@@ -88,4 +93,9 @@ void AppDataHandler::setArea(double p_latMin, double p_latMax, double p_lonMin, 
     latMax = p_latMax;
     lonMin = p_lonMin;
     lonMax = p_lonMax;
+}
+
+void AppDataHandler::setArea(TGeoMinMax p_latLonMinMax)
+{
+    latLonMinMax = p_latLonMinMax;
 }

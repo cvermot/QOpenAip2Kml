@@ -27,7 +27,7 @@ AeronauticalDataHandler::~AeronauticalDataHandler()
 }
 
 void AeronauticalDataHandler::addAirspace(TAirspace p_airspace)
-{
+{  
     airspaces.append(p_airspace);
 }
 

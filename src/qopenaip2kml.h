@@ -79,10 +79,10 @@ private:
     //fichier de sortie
     QLineEdit *outputFileLineEdit;
 
-    QLineEdit *aeraLatMinLineEdit;
-    QLineEdit *aeraLonMinLineEdit;
-    QLineEdit *aeraLatMaxLineEdit;
-    QLineEdit *aeraLonMaxLineEdit;
+    QLineEdit *areaLatMinLineEdit;
+    QLineEdit *areaLonMinLineEdit;
+    QLineEdit *areaLatMaxLineEdit;
+    QLineEdit *areaLonMaxLineEdit;
 
     QPushButton *runPushButton;
 

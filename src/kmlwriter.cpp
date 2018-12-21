@@ -169,7 +169,7 @@ void KmlWriter::createStyles(QDomDocument &p_doc,
     {
        QString sanitizedAirspaceName = airspacesName[k];
        sanitizedAirspaceName.remove(QRegExp("[^a-zA-Z\\d\\s]"));
-       createStyleWithPair(p_doc, p_document, colors[k].remove(0,1), sanitizedAirspaceName);
+       createStyleWithPair(p_doc, p_document, colors[k], sanitizedAirspaceName);
        colorMapZone.replace(k, QString("#").append(sanitizedAirspaceName).append("Map"));
     }
 

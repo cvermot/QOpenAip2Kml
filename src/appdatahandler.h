@@ -44,13 +44,17 @@ public:
     void setZoneActivated (const TAirspaceCategory category, const bool zoneIsActivated);
     void setTransparency(int p_transparency);
     void setLineThickness(int p_lineThickness);
+    //TODO to depreciate
     void setArea(double p_latMin, double p_latMax, double p_lonMin, double p_lonMax);
+    void setArea(TGeoMinMax p_latLonMinMax);
 
 private:
     QVector<QString> zonesColors;
     QVector<bool> zonesActivations;
     int transparency;
     int lineThickness;
+    TGeoMinMax latLonMinMax;
+    //TODO to depreciate
     double latMin;
     double latMax;
     double lonMin;
